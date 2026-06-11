@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoVault — Inwestuj w Przyszłość</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --void: #05050A;
+    --deep: #0A0A14;
+    --surface: #10101C;
+    --card: #141420;
+    --border: #1E1E30;
+    --btc: #F7931A;
+    --btc-glow: rgba(247,147,26,0.25);
+    --neon: #00D4AA;
+    --neon-glow: rgba(0,212,170,0.2);
+    --gold: #FFD700;
+    --red: #FF4560;
+    --muted: #5A5A7A;
+    --text: #C8C8E0;
+    --bright: #EEEEF8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ===== CANVAS BACKGROUND ===== */
+  #cosmos { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 68px;
+    background: rgba(5,5,10,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+    color: var(--bright);
+  }
+  .nav-logo span { color: var(--btc); }
+
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; letter-spacing: 0.3px; transition: color .2s; }
+  .nav-links a:hover { color: var(--bright); }
+
+  .nav-cta {
+    background: var(--btc); color: #000; border: none;
+    padding: 10px 24px; border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.3px;
+    transition: box-shadow .2s, transform .15s;
+  }
+  .nav-cta:hover { box-shadow: 0 0 20px var(--btc-glow); transform: translateY(-1px); }
+
+  /* ===== TICKER ===== */
+  .ticker-bar {
+    position: fixed; top: 68px; left: 0; right: 0; z-index: 99;
+    background: var(--deep); border-bottom: 1px solid var(--border);
+    overflow: hidden; height: 36px;
+  }
+  .ticker-inner {
+    display: flex; align-items: center; height: 100%;
+    animation: ticker 40s linear infinite;
+    white-space: nowrap; width: max-content;
+  }
+  .ticker-item {
+    font-family: 'Space Mono', monospace; font-size: 12px;
+    padding: 0 32px; color: var(--muted);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ticker-item .sym { color: var(--bright); font-weight: 700; }
+  .ticker-item .up { color: var(--neon); }
+  .ticker-item .dn { color: var(--red); }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ===== MAIN WRAPPER ===== */
+  main { position: relative; z-index: 10; padding-top: 104px; }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 92vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 60px 24px;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(247,147,26,0.1); border: 1px solid rgba(247,147,26,0.3);
+    color: var(--btc); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 6px 16px; border-radius: 100px; margin-bottom: 40px;
+  }
+  .hero-badge::before { content: '●'; font-size: 8px; animation: pulse-dot 1.5s ease infinite; }
+  @keyframes pulse-dot { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
+
+  .hero-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 800; line-height: 0.95; letter-spacing: -3px;
+    color: var(--bright); margin-bottom: 12px;
+  }
+  .hero-title .accent { color: var(--btc); }
+  .hero-title .line2 { display: block; color: var(--muted); font-weight: 300; letter-spacing: -1px; }
+
+  .btc-price-hero {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 700; color: var(--neon);
+    margin: 32px 0 16px;
+    text-shadow: 0 0 40px var(--neon-glow);
+    letter-spacing: -1px;
+  }
+  .btc-label { color: var(--muted); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 40px; }
+
+  .hero-sub {
+    max-width: 520px; font-size: 17px; font-weight: 400;
+    color: var(--muted); margin-bottom: 48px; line-height: 1.7;
+  }
+
+  .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 72px; }
+
+  .btn-primary {
+    background: var(--btc); color: #000; border: none;
+    padding: 16px 36px; border-radius: 10px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.3px;
+    transition: all .2s; box-shadow: 0 0 0 rgba(247,147,26,0);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px var(--btc-glow); }
+
+  .btn-ghost {
+    background: transparent; color: var(--bright);
+    border: 1px solid var(--border);
+    padding: 16px 36px; border-radius: 10px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-ghost:hover { border-color: var(--btc); color: var(--btc); }
+
+  /* ===== STATS ROW ===== */
+  .stats-row {
+    display: flex; gap: 1px; background: var(--border);
+    border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    max-width: 860px; width: 100%; margin: 0 auto;
+  }
+  .stat-cell {
+    flex: 1; background: var(--card); padding: 24px 28px; text-align: left;
+    transition: background .2s;
+  }
+  .stat-cell:hover { background: var(--surface); }
+  .stat-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 24px; font-weight: 700; color: var(--bright); display: block; line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-val.green { color: var(--neon); }
+  .stat-val.orange { color: var(--btc); }
+  .stat-lbl { font-size: 12px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; }
+
+  /* ===== SECTION COMMONS ===== */
+  section { padding: 100px 48px; max-width: 1280px; margin: 0 auto; }
+
+  .section-eyebrow {
+    font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--btc); margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(32px, 4vw, 52px); font-weight: 800;
+    color: var(--bright); letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 20px;
+  }
+  .section-sub { max-width: 500px; color: var(--muted); font-size: 16px; line-height: 1.7; margin-bottom: 60px; }
+
+  /* ===== CHART SECTION ===== */
+  .chart-section { display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start; }
+  .chart-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px;
+  }
+  .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  .chart-coin { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: var(--bright); }
+  .chart-price-big {
+    font-family: 'Space Mono', monospace;
+    font-size: 36px; font-weight: 700; color: var(--bright); letter-spacing: -1px; margin-bottom: 4px;
+  }
+  .chart-change { color: var(--neon); font-size: 14px; font-weight: 600; }
+  .chart-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+  .chart-tab {
+    padding: 6px 14px; border-radius: 6px; border: none;
+    font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all .15s;
+    background: transparent; color: var(--muted);
+  }
+  .chart-tab.active { background: var(--btc); color: #000; }
+  .chart-tab:hover:not(.active) { background: var(--surface); color: var(--bright); }
+  #mainChart { width: 100%; height: 240px; }
+
+  /* portfolio sidebar */
+  .portfolio-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px;
+  }
+  .portfolio-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700;
+    color: var(--bright); margin-bottom: 6px;
+  }
+  .portfolio-total {
+    font-family: 'Space Mono', monospace; font-size: 32px; font-weight: 700;
+    color: var(--gold); margin-bottom: 4px; letter-spacing: -1px;
+    text-shadow: 0 0 30px rgba(255,215,0,0.3);
+  }
+  .portfolio-pnl { color: var(--neon); font-size: 14px; font-weight: 600; margin-bottom: 28px; }
+  #donutChart { display: block; margin: 0 auto 24px; }
+  .portfolio-legend { display: flex; flex-direction: column; gap: 12px; }
+  .legend-item { display: flex; align-items: center; justify-content: space-between; }
+  .legend-left { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-name { color: var(--text); }
+  .legend-pct { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: var(--bright); }
+  .legend-val { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); text-align: right; }
+
+  /* ===== MARKET TABLE ===== */
+  .market-table-wrap { overflow: hidden; border: 1px solid var(--border); border-radius: 20px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 16px 20px; text-align: left;
+    font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  thead th:not(:first-child) { text-align: right; }
+  tbody tr { background: var(--card); transition: background .15s; cursor: pointer; }
+  tbody tr:nth-child(even) { background: var(--deep); }
+  tbody tr:hover { background: var(--surface); }
+  tbody td { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  tbody tr:last-child td { border-bottom: none; }
+  .td-coin { display: flex; align-items: center; gap: 14px; }
+  .coin-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .coin-name { font-weight: 600; color: var(--bright); font-size: 15px; display: block; }
+  .coin-sym { color: var(--muted); font-size: 12px; letter-spacing: 0.8px; }
+  td:not(:first-child) { text-align: right; }
+  .td-price { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; color: var(--bright); }
+  .td-up { color: var(--neon); font-weight: 700; font-size: 14px; }
+  .td-dn { color: var(--red); font-weight: 700; font-size: 14px; }
+  .td-vol { color: var(--muted); font-family: 'Space Mono', monospace; font-size: 13px; }
+  .td-mcap { color: var(--text); font-family: 'Space Mono', monospace; font-size: 13px; }
+  .spark { width: 80px; height: 32px; }
+
+  /* ===== FEATURES ===== */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 36px 32px; transition: all .25s; position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--btc), var(--neon));
+    opacity: 0; transition: opacity .25s;
+  }
+  .feature-card:hover { border-color: rgba(247,147,26,0.3); transform: translateY(-4px); }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: rgba(247,147,26,0.1); border: 1px solid rgba(247,147,26,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin-bottom: 24px;
+  }
+  .feature-name {
+    font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700;
+    color: var(--bright); margin-bottom: 12px;
+  }
+  .feature-desc { color: var(--muted); font-size: 15px; line-height: 1.7; }
+
+  /* ===== CTA SECTION ===== */
+  .cta-section {
+    margin: 0 48px 100px; padding: 80px;
+    background: linear-gradient(135deg, rgba(247,147,26,0.08) 0%, rgba(0,212,170,0.05) 100%);
+    border: 1px solid rgba(247,147,26,0.2);
+    border-radius: 28px; text-align: center; position: relative; overflow: hidden;
+  }
+  .cta-glow {
+    position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(247,147,26,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(36px, 5vw, 60px); font-weight: 800;
+    color: var(--bright); letter-spacing: -2px; margin-bottom: 20px;
+  }
+  .cta-title span { color: var(--btc); }
+  .cta-sub { color: var(--muted); font-size: 17px; max-width: 500px; margin: 0 auto 40px; line-height: 1.7; }
+  .cta-form { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .cta-input {
+    background: var(--surface); border: 1px solid var(--border); color: var(--bright);
+    padding: 14px 20px; border-radius: 10px; font-size: 15px;
+    width: 300px; outline: none; font-family: 'Inter', sans-serif;
+    transition: border-color .2s;
+  }
+  .cta-input::placeholder { color: var(--muted); }
+  .cta-input:focus { border-color: var(--btc); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px; display: flex; justify-content: space-between; align-items: center;
+    color: var(--muted); font-size: 13px;
+  }
+  .footer-logo {
+    font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800;
+    color: var(--bright);
+  }
+  .footer-logo span { color: var(--btc); }
+  .footer-links { display: flex; gap: 28px; }
+  .footer-links a { color: var(--muted); text-decoration: none; transition: color .2s; }
+  .footer-links a:hover { color: var(--btc); }
+  .footer-disc { font-size: 12px; max-width: 380px; text-align: right; line-height: 1.5; }
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s, transform .6s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<canvas id="cosmos"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Crypto<span>Vault</span></div>
+  <ul class="nav-links">
+    <li><a href="#">Rynek</a></li>
+    <li><a href="#">Handel</a></li>
+    <li><a href="#">Portfolio</a></li>
+    <li><a href="#">Staking</a></li>
+    <li><a href="#">Analityka</a></li>
+  </ul>
+  <button class="nav-cta">Otwórz Konto</button>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
+
+<main>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Na żywo · Rynek krypto</div>
+  <h1 class="hero-title">
+    Inwestuj w<br>
+    <span class="accent">Bitcoin</span>
+    <span class="line2">jak profesjonaliści</span>
+  </h1>
+  <div class="btc-price-hero" id="heroPrice">$107,284.50</div>
+  <div class="btc-label">BTC/USD · Aktualna cena</div>
+  <p class="hero-sub">
+    Profesjonalna platforma do handlu kryptowalutami. Zarabiaj na wzrostach i spadkach rynku z dostępem do ponad 200 aktywów cyfrowych.
+  </p>
+  <div class="hero-btns">
+    <button class="btn-primary">Zacznij Teraz — Bezpłatnie</button>
+    <button class="btn-ghost">Obejrzyj Demo</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-cell">
+      <span class="stat-val orange" id="st1">$2.4B</span>
+      <span class="stat-lbl">Dzienny wolumen</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-val">840 tys.</span>
+      <span class="stat-lbl">Aktywnych traderów</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-val green">+14.2%</span>
+      <span class="stat-lbl">Śr. zysk miesięczny</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-val">0.05%</span>
+      <span class="stat-lbl">Najniższa prowizja</span>
+    </div>
+  </div>
+</div>
+
+<!-- CHART + PORTFOLIO -->
+<section>
+  <div class="section-eyebrow">Live Trading</div>
+  <h2 class="section-title reveal">Śledź rynek w czasie<br>rzeczywistym</h2>
+  <p class="section-sub reveal">Zaawansowane wykresy, alerty cenowe i narzędzia analizy technicznej w jednym miejscu.</p>
+
+  <div class="chart-section reveal">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-coin">₿ Bitcoin</div>
+          <div class="chart-price-big" id="chartPrice">$107,284.50</div>
+          <div class="chart-change" id="chartChange">↑ +3.47% (24h)</div>
+        </div>
+        <div class="chart-tabs">
+          <button class="chart-tab active">1D</button>
+          <button class="chart-tab">1W</button>
+          <button class="chart-tab">1M</button>
+          <button class="chart-tab">1Y</button>
+        </div>
+      </div>
+      <canvas id="mainChart"></canvas>
+    </div>
+
+    <div class="portfolio-card">
+      <div class="portfolio-title">Moje Portfolio</div>
+      <div class="portfolio-total">$284,950</div>
+      <div class="portfolio-pnl">↑ +$32,180 (+12.7%) ten miesiąc</div>
+      <canvas id="donutChart" width="180" height="180"></canvas>
+      <div class="portfolio-legend" id="legend"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET TABLE -->
+<section>
+  <div class="section-eyebrow">Rynek</div>
+  <h2 class="section-title reveal">Top kryptowaluty</h2>
+  <p class="section-sub reveal">200+ par handlowych z płynnością na poziomie instytucjonalnym.</p>
+
+  <div class="market-table-wrap reveal">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Moneta</th>
+          <th>Cena</th>
+          <th>24h zmiana</th>
+          <th>7d zmiana</th>
+          <th>Wolumen 24h</th>
+          <th>Kap. rynkowa</th>
+          <th>7D wykres</th>
+        </tr>
+      </thead>
+      <tbody id="marketTbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section>
+  <div class="section-eyebrow">Dlaczego CryptoVault</div>
+  <h2 class="section-title reveal">Wszystko czego potrzebujesz<br>do sukcesu</h2>
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-name">Błyskawiczne Realizacje</div>
+      <p class="feature-desc">Zlecenia realizowane w &lt;10ms. Nasza infrastruktura zapewnia najlepsze ceny na rynku bez poślizgów.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <div class="feature-name">Bezpieczeństwo Klasy A</div>
+      <p class="feature-desc">95% środków w zimnych portfelach. Ubezpieczenie do €500 000. Biometryczna autoryzacja 2FA.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-name">AI Analityka</div>
+      <p class="feature-desc">Sztuczna inteligencja analizuje 10 000 sygnałów na sekundę. Alerty przed ruchami cen z 78% precyzją.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💰</div>
+      <div class="feature-name">Staking do 18% APY</div>
+      <p class="feature-desc">Zarabiaj pasywnie stakując ETH, SOL, ADA i inne. Automatyczne reinwestowanie odsetek.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌍</div>
+      <div class="feature-name">200+ Aktywów</div>
+      <p class="feature-desc">Bitcoin, Ethereum, DeFi tokeny, NFT coins i nowe projekty Web3. Zawsze jako pierwszy.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <div class="feature-name">Handel 24/7</div>
+      <p class="feature-desc">Mobilna aplikacja iOS i Android. Pełna funkcjonalność w kieszeni. Handel bez ograniczeń czasowych.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section reveal">
+  <div class="cta-glow"></div>
+  <h2 class="cta-title">Zacznij zarabiać na <span>Bitcoin</span><br>już dziś</h2>
+  <p class="cta-sub">Dołącz do 840 000 traderów, którzy już zarabiają. Rejestracja zajmuje 2 minuty.</p>
+  <div class="cta-form">
+    <input class="cta-input" type="email" placeholder="Twój adres e-mail">
+    <button class="btn-primary">Utwórz Konto</button>
+  </div>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Crypto<span>Vault</span></div>
+  <div class="footer-links">
+    <a href="#">Regulamin</a>
+    <a href="#">Prywatność</a>
+    <a href="#">Kontakt</a>
+    <a href="#">Blog</a>
+    <a href="#">API</a>
+  </div>
+  <div class="footer-disc">* Handel kryptowalutami wiąże się z ryzykiem utraty kapitału. To jest strona demonstracyjna.</div>
+</footer>
+
+<script>
+/* ==============================
+   COSMOS CANVAS
+============================== */
+const canvas = document.getElementById('cosmos');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [], btcSymbols = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// stars
+for (let i = 0; i < 180; i++) {
+  particles.push({
+    x: Math.random() * 99999,
+    y: Math.random() * 99999,
+    r: Math.random() * 1.4 + 0.2,
+    a: Math.random() * 0.7 + 0.1,
+    speed: Math.random() * 0.15 + 0.02
+  });
+}
+// floating btc symbols
+const btcChars = ['₿', '₿', '₿', '$', '⬡', '◈'];
+for (let i = 0; i < 18; i++) {
+  btcSymbols.push({
+    x: Math.random() * 9999,
+    y: Math.random() * 9999,
+    vy: -(Math.random() * 0.4 + 0.1),
+    vx: (Math.random() - 0.5) * 0.2,
+    a: Math.random() * 0.12 + 0.03,
+    size: Math.floor(Math.random() * 3) * 8 + 12,
+    char: btcChars[Math.floor(Math.random() * btcChars.length)],
+    color: Math.random() > 0.4 ? '#F7931A' : '#00D4AA',
+    rotation: Math.random() * Math.PI * 2,
+    rotSpeed: (Math.random() - 0.5) * 0.005
+  });
+}
+
+let scrollY = 0;
+window.addEventListener('scroll', () => { scrollY = window.scrollY; });
+
+function drawCosmos() {
+  ctx.clearRect(0, 0, W, H);
+  const t = Date.now() * 0.0003;
+  const parallax = scrollY * 0.1;
+
+  // stars
+  particles.forEach(p => {
+    p.x += p.speed;
+    if (p.x > W + 10) p.x = -10;
+    ctx.beginPath();
+    ctx.arc(p.x % W, (p.y + parallax * 0.5) % H, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,200,230,${p.a + Math.sin(t + p.x) * 0.1})`;
+    ctx.fill();
+  });
+
+  // btc symbols
+  btcSymbols.forEach(s => {
+    s.y += s.vy;
+    s.x += s.vx;
+    s.rotation += s.rotSpeed;
+    if (s.y < -60) { s.y = H + 40; s.x = Math.random() * W; }
+    if (s.x < -40) s.x = W + 40;
+    if (s.x > W + 40) s.x = -40;
+    ctx.save();
+    ctx.translate(s.x % W || s.x, s.y);
+    ctx.rotate(s.rotation);
+    ctx.font = `${s.size}px 'Space Grotesk', monospace`;
+    ctx.fillStyle = s.color.replace(')', `,${s.a})`).replace('rgb','rgba').replace('#F7931A',`rgba(247,147,26,${s.a})`).replace('#00D4AA',`rgba(0,212,170,${s.a})`);
+    ctx.globalAlpha = s.a + Math.sin(t * 2 + s.size) * 0.03;
+    ctx.fillText(s.char, 0, 0);
+    ctx.restore();
+  });
+
+  // nebula glow blobs
+  const blobs = [
+    { x: W * 0.15, y: H * 0.3, r: 350, c: 'rgba(247,147,26,' },
+    { x: W * 0.85, y: H * 0.7, r: 280, c: 'rgba(0,212,170,' },
+    { x: W * 0.5, y: H * 1.1 + parallax * 0.3, r: 400, c: 'rgba(80,50,180,' }
+  ];
+  blobs.forEach(b => {
+    const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+    grad.addColorStop(0, b.c + '0.04)');
+    grad.addColorStop(1, b.c + '0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  requestAnimationFrame(drawCosmos);
+}
+drawCosmos();
+
+/* ==============================
+   TICKER
+============================== */
+const tickerData = [
+  { sym: 'BTC', price: 107284.50, change: +3.47 },
+  { sym: 'ETH', price: 3912.30, change: +1.82 },
+  { sym: 'SOL', price: 187.45, change: +5.21 },
+  { sym: 'BNB', price: 624.10, change: -0.74 },
+  { sym: 'ADA', price: 0.6843, change: +2.15 },
+  { sym: 'DOGE', price: 0.1847, change: +7.43 },
+  { sym: 'AVAX', price: 43.22, change: -1.33 },
+  { sym: 'DOT', price: 9.87, change: +0.91 },
+  { sym: 'MATIC', price: 0.9341, change: +3.67 },
+  { sym: 'LINK', price: 18.74, change: +2.44 },
+  { sym: 'XRP', price: 0.6127, change: -0.55 },
+  { sym: 'LTC', price: 87.63, change: +1.21 },
+];
+
+function buildTicker() {
+  const inner = document.getElementById('tickerInner');
+  const doubled = [...tickerData, ...tickerData];
+  inner.innerHTML = doubled.map(d => `
+    <div class="ticker-item">
+      <span class="sym">${d.sym}/USDT</span>
+      <span>${d.price < 1 ? d.price.toFixed(4) : d.price.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+      <span class="${d.change >= 0 ? 'up' : 'dn'}">${d.change >= 0 ? '▲' : '▼'} ${Math.abs(d.change).toFixed(2)}%</span>
+    </div>
+  `).join('');
+}
+buildTicker();
+
+/* ==============================
+   LIVE PRICE SIMULATION
+============================== */
+let btcBase = 107284.50;
+function updatePrices() {
+  btcBase += (Math.random() - 0.495) * 120;
+  const f = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('heroPrice').textContent = f(btcBase);
+  document.getElementById('chartPrice').textContent = f(btcBase);
+}
+setInterval(updatePrices, 2200);
+
+/* ==============================
+   MAIN CHART (Canvas)
+============================== */
+function generatePriceData(base, points, volatility) {
+  const data = [base];
+  for (let i = 1; i < points; i++) {
+    const prev = data[i - 1];
+    const change = (Math.random() - 0.47) * volatility;
+    data.push(Math.max(prev + change, base * 0.6));
+  }
+  return data;
+}
+
+const chartCanvas = document.getElementById('mainChart');
+const chartCtx = chartCanvas.getContext('2d');
+chartCanvas.width = chartCanvas.offsetWidth || 600;
+chartCanvas.height = 240;
+
+const priceData = generatePriceData(95000, 80, 1800);
+priceData[priceData.length - 1] = btcBase;
+
+function drawMainChart() {
+  const cw = chartCanvas.width, ch = chartCanvas.height;
+  chartCtx.clearRect(0, 0, cw, ch);
+  const pad = { t: 10, r: 10, b: 30, l: 50 };
+  const iw = cw - pad.l - pad.r;
+  const ih = ch - pad.t - pad.b;
+  const mn = Math.min(...priceData), mx = Math.max(...priceData);
+  const range = mx - mn;
+  const toX = i => pad.l + (i / (priceData.length - 1)) * iw;
+  const toY = v => pad.t + (1 - (v - mn) / range) * ih;
+
+  // grid
+  chartCtx.strokeStyle = 'rgba(255,255,255,0.04)';
+  chartCtx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (i / 4) * ih;
+    chartCtx.beginPath(); chartCtx.moveTo(pad.l, y); chartCtx.lineTo(cw - pad.r, y); chartCtx.stroke();
+    const val = mx - (i / 4) * range;
+    chartCtx.fillStyle = '#5A5A7A'; chartCtx.font = '11px Space Mono';
+    chartCtx.fillText('$' + Math.round(val / 1000) + 'K', 2, y + 4);
+  }
+
+  // area fill
+  const grad = chartCtx.createLinearGradient(0, pad.t, 0, pad.t + ih);
+  grad.addColorStop(0, 'rgba(247,147,26,0.25)');
+  grad.addColorStop(1, 'rgba(247,147,26,0)');
+  chartCtx.beginPath();
+  chartCtx.moveTo(toX(0), toY(priceData[0]));
+  priceData.forEach((v, i) => chartCtx.lineTo(toX(i), toY(v)));
+  chartCtx.lineTo(toX(priceData.length - 1), pad.t + ih);
+  chartCtx.lineTo(toX(0), pad.t + ih);
+  chartCtx.closePath();
+  chartCtx.fillStyle = grad;
+  chartCtx.fill();
+
+  // line
+  chartCtx.beginPath();
+  chartCtx.moveTo(toX(0), toY(priceData[0]));
+  priceData.forEach((v, i) => chartCtx.lineTo(toX(i), toY(v)));
+  chartCtx.strokeStyle = '#F7931A';
+  chartCtx.lineWidth = 2.5;
+  chartCtx.lineJoin = 'round';
+  chartCtx.stroke();
+
+  // current dot
+  const lx = toX(priceData.length - 1);
+  const ly = toY(priceData[priceData.length - 1]);
+  chartCtx.beginPath(); chartCtx.arc(lx, ly, 5, 0, Math.PI * 2);
+  chartCtx.fillStyle = '#F7931A'; chartCtx.fill();
+  chartCtx.beginPath(); chartCtx.arc(lx, ly, 9, 0, Math.PI * 2);
+  chartCtx.strokeStyle = 'rgba(247,147,26,0.4)'; chartCtx.lineWidth = 2; chartCtx.stroke();
+}
+drawMainChart();
+
+/* ==============================
+   DONUT CHART
+============================== */
+const donutCanvas = document.getElementById('donutChart');
+const dctx = donutCanvas.getContext('2d');
+const portfolio = [
+  { name: 'Bitcoin', pct: 58, color: '#F7931A', val: '$165,271' },
+  { name: 'Ethereum', pct: 22, color: '#00D4AA', val: '$62,689' },
+  { name: 'Solana', pct: 11, color: '#9945FF', val: '$31,344' },
+  { name: 'Pozostałe', pct: 9, color: '#5A5A7A', val: '$25,646' },
+];
+function drawDonut() {
+  const cx = 90, cy = 90, outerR = 78, innerR = 52;
+  let start = -Math.PI / 2;
+  dctx.clearRect(0, 0, 180, 180);
+  portfolio.forEach(p => {
+    const slice = (p.pct / 100) * Math.PI * 2;
+    dctx.beginPath();
+    dctx.arc(cx, cy, outerR, start, start + slice);
+    dctx.arc(cx, cy, innerR, start + slice, start, true);
+    dctx.closePath();
+    dctx.fillStyle = p.color;
+    dctx.fill();
+    start += slice;
+  });
+  dctx.beginPath(); dctx.arc(cx, cy, innerR - 2, 0, Math.PI * 2);
+  dctx.fillStyle = '#141420'; dctx.fill();
+  dctx.font = 'bold 22px Space Mono'; dctx.fillStyle = '#EEEEF8';
+  dctx.textAlign = 'center'; dctx.fillText('58%', cx, cy - 4);
+  dctx.font = '11px Inter'; dctx.fillStyle = '#5A5A7A';
+  dctx.fillText('BTC', cx, cy + 14);
+}
+drawDonut();
+
+const legend = document.getElementById('legend');
+portfolio.forEach(p => {
+  legend.innerHTML += `
+    <div class="legend-item">
+      <div class="legend-left">
+        <div class="legend-dot" style="background:${p.color}"></div>
+        <span class="legend-name">${p.name}</span>
+      </div>
+      <div>
+        <div class="legend-pct">${p.pct}%</div>
+        <div class="legend-val">${p.val}</div>
+      </div>
+    </div>`;
+});
+
+/* ==============================
+   MARKET TABLE
+============================== */
+const coins = [
+  { rank: 1, icon: '₿', iconBg: '#F7931A22', name: 'Bitcoin', sym: 'BTC', price: 107284.50, d1: +3.47, d7: +12.8, vol: '$42.1B', mcap: '$2.11T', trend: [92,95,98,97,100,102,107] },
+  { rank: 2, icon: 'Ξ', iconBg: '#627EEA22', name: 'Ethereum', sym: 'ETH', price: 3912.30, d1: +1.82, d7: +8.3, vol: '$18.7B', mcap: '$470.4B', trend: [340,350,345,360,370,385,391] },
+  { rank: 3, icon: '◎', iconBg: '#9945FF22', name: 'Solana', sym: 'SOL', price: 187.45, d1: +5.21, d7: +18.6, vol: '$4.2B', mcap: '$87.1B', trend: [145,150,165,170,172,180,187] },
+  { rank: 4, icon: 'B', iconBg: '#F3BA2F22', name: 'BNB', sym: 'BNB', price: 624.10, d1: -0.74, d7: +3.1, vol: '$2.1B', mcap: '$91.3B', trend: [600,610,618,615,620,621,624] },
+  { rank: 5, icon: '✕', iconBg: '#00AAE422', name: 'XRP', sym: 'XRP', price: 0.6127, d1: -0.55, d7: +5.7, vol: '$3.4B', mcap: '$34.8B', trend: [0.54,0.55,0.57,0.58,0.59,0.61,0.61] },
+  { rank: 6, icon: '◇', iconBg: '#E84142AA', name: 'Avalanche', sym: 'AVAX', price: 43.22, d1: -1.33, d7: +6.8, vol: '$0.8B', mcap: '$18.0B', trend: [37,38,40,41,42,43,43] },
+  { rank: 7, icon: 'D', iconBg: '#BA9F3322', name: 'Dogecoin', sym: 'DOGE', price: 0.1847, d1: +7.43, d7: +22.1, vol: '$3.1B', mcap: '$27.2B', trend: [0.13,0.14,0.15,0.16,0.17,0.18,0.18] },
+];
+
+function drawSparkline(data, up, w = 80, h = 32) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d');
+  const mn = Math.min(...data), mx = Math.max(...data), range = mx - mn || 1;
+  const toX = i => (i / (data.length - 1)) * w;
+  const toY = v => h - ((v - mn) / range) * (h - 4) - 2;
+  const grad = x.createLinearGradient(0, 0, w, 0);
+  const col = up ? '#00D4AA' : '#FF4560';
+  grad.addColorStop(0, col + '44');
+  grad.addColorStop(1, col);
+  x.beginPath();
+  data.forEach((v, i) => i === 0 ? x.moveTo(toX(i), toY(v)) : x.lineTo(toX(i), toY(v)));
+  x.strokeStyle = grad; x.lineWidth = 2; x.lineJoin = 'round'; x.stroke();
+  return c.toDataURL();
+}
+
+const tbody = document.getElementById('marketTbody');
+coins.forEach(c => {
+  const up1 = c.d1 >= 0, up7 = c.d7 >= 0;
+  const spark = drawSparkline(c.trend, up7);
+  tbody.innerHTML += `
+    <tr>
+      <td style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px;padding-left:20px">${c.rank}</td>
+      <td>
+        <div class="td-coin">
+          <div class="coin-icon" style="background:${c.iconBg};color:${c.iconBg.slice(0,7)};font-family:'Space Grotesk',sans-serif;font-weight:800">${c.icon}</div>
+          <div><span class="coin-name">${c.name}</span><span class="coin-sym">${c.sym}</span></div>
+        </div>
+      </td>
+      <td><span class="td-price">$${c.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4})}</span></td>
+      <td><span class="${up1 ? 'td-up' : 'td-dn'}">${up1 ? '▲' : '▼'} ${Math.abs(c.d1).toFixed(2)}%</span></td>
+      <td><span class="${up7 ? 'td-up' : 'td-dn'}">${up7 ? '▲' : '▼'} ${Math.abs(c.d7).toFixed(1)}%</span></td>
+      <td class="td-vol">${c.vol}</td>
+      <td class="td-mcap">${c.mcap}</td>
+      <td><img class="spark" src="${spark}" alt="sparkline"></td>
+    </tr>`;
+});
+
+/* ==============================
+   CHART TABS
+============================== */
+document.querySelectorAll('.chart-tab').forEach(btn => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    // generate new random data for the period
+    const newData = generatePriceData(80000, 80, this.textContent === '1D' ? 1800 : this.textContent === '1W' ? 3000 : this.textContent === '1M' ? 6000 : 15000);
+    priceData.length = 0;
+    newData.forEach(v => priceData.push(v));
+    drawMainChart();
+  });
+});
+
+/* ==============================
+   SCROLL REVEAL
+============================== */
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>
