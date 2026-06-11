@@ -33,8 +33,6 @@
     min-height: 100vh;
   }
 
-
-
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
@@ -77,9 +75,9 @@
     cursor: pointer;
   }
 
+  /* LAYOUT FIX: use flex instead of grid + fixed sidebar */
   .layout {
-    display: grid;
-    grid-template-columns: 220px 1fr;
+    display: flex;
     padding-top: 64px;
     min-height: 100vh;
   }
@@ -92,6 +90,7 @@
     padding: 28px 16px;
     display: flex; flex-direction: column; gap: 4px;
     overflow-y: auto;
+    z-index: 50;
   }
   .sidebar-label {
     font-size: 10px; font-weight: 700; letter-spacing: 1.8px;
@@ -112,10 +111,13 @@
     font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 100px;
   }
 
+  /* MAIN: fixed left offset matching sidebar width */
   .main {
     margin-left: 220px;
     padding: 32px 40px 60px;
     min-height: 100vh;
+    width: calc(100% - 220px);
+    overflow-x: hidden;
   }
 
   .page-header {
@@ -128,11 +130,11 @@
     font-size: 28px; font-weight: 800; color: var(--bright); letter-spacing: -1px;
   }
   .page-date { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .header-btns { display: flex; gap: 12px; }
+  .header-btns { display: flex; gap: 12px; align-items: center; }
   .btn-sm {
     padding: 10px 20px; border-radius: 8px;
     font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700;
-    cursor: pointer; border: none; transition: all .15s;
+    cursor: pointer; border: none; transition: all .15s; white-space: nowrap;
   }
   .btn-buy { background: var(--neon); color: #000; }
   .btn-buy:hover { box-shadow: 0 0 20px var(--neon-glow); }
@@ -151,7 +153,7 @@
     background: radial-gradient(circle, rgba(247,147,26,0.15), transparent 70%);
     pointer-events: none;
   }
-  .balance-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  .balance-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 24px; }
   .balance-label { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
   .balance-usd {
     font-family: 'Space Mono', monospace;
@@ -161,18 +163,18 @@
   .balance-pnl { color: var(--neon); font-size: 16px; font-weight: 600; margin-top: 8px; }
   .balance-btc-box {
     background: rgba(247,147,26,0.1); border: 1px solid rgba(247,147,26,0.3);
-    border-radius: 16px; padding: 20px 28px; text-align: right;
+    border-radius: 16px; padding: 20px 28px; text-align: right; flex-shrink: 0;
   }
   .balance-btc-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
   .balance-btc-amount {
     font-family: 'Space Mono', monospace;
-    font-size: 36px; font-weight: 700; color: var(--btc);
+    font-size: 32px; font-weight: 700; color: var(--btc);
     letter-spacing: -1px;
     text-shadow: 0 0 30px var(--btc-glow);
+    white-space: nowrap;
   }
   .balance-btc-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-  /* STATS — 4 tiles, each shows value + label + USD sub-value where relevant */
   .balance-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .bal-stat-item {
     background: rgba(255,255,255,0.03);
@@ -206,10 +208,11 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 17px; font-weight: 800;
     font-family: 'Space Grotesk', sans-serif;
+    flex-shrink: 0;
   }
   .mini-coin-name { font-weight: 700; color: var(--bright); font-size: 15px; }
   .mini-coin-sym { font-size: 12px; color: var(--muted); }
-  .mini-pct { font-size: 13px; font-weight: 700; }
+  .mini-pct { font-size: 13px; font-weight: 700; white-space: nowrap; }
   .mini-pct.up { color: var(--neon); }
   .mini-pct.dn { color: var(--red); }
   .mini-price {
@@ -233,7 +236,7 @@
     font-family: 'Space Grotesk', sans-serif;
     font-size: 17px; font-weight: 700; color: var(--bright);
   }
-  .see-all { font-size: 13px; color: var(--btc); cursor: pointer; font-weight: 600; }
+  .see-all { font-size: 13px; color: var(--btc); cursor: pointer; font-weight: 600; white-space: nowrap; }
 
   .tx-item {
     display: flex; align-items: center; gap: 14px;
@@ -248,19 +251,19 @@
   .tx-icon.buy { background: rgba(0,212,170,0.1); }
   .tx-icon.sell { background: rgba(255,69,96,0.1); }
   .tx-icon.receive { background: rgba(247,147,26,0.1); }
-  .tx-info { flex: 1; }
-  .tx-name { font-weight: 600; color: var(--bright); font-size: 14px; }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-name { font-weight: 600; color: var(--bright); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tx-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .tx-amount { text-align: right; }
-  .tx-usd { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; }
+  .tx-amount { text-align: right; flex-shrink: 0; }
+  .tx-usd { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; white-space: nowrap; }
   .tx-usd.plus { color: var(--neon); }
   .tx-usd.minus { color: var(--red); }
-  .tx-btc { font-size: 12px; color: var(--muted); margin-top: 2px; text-align: right; }
+  .tx-btc { font-size: 12px; color: var(--muted); margin-top: 2px; text-align: right; white-space: nowrap; }
 
   .perf-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
   .perf-row:last-child { border-bottom: none; }
   .perf-asset { display: flex; align-items: center; gap: 10px; }
-  .perf-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .perf-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .perf-name { font-size: 14px; color: var(--text); font-weight: 500; }
   .perf-right { text-align: right; }
   .perf-val { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--bright); }
@@ -290,11 +293,18 @@
   .staking-reward-label { font-size: 13px; color: var(--muted); }
   .staking-reward-val { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--neon); }
 
+  /* FIX: address-box — horizontal text, not vertical */
   .address-box {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 12px; padding: 14px 18px;
     font-family: 'Space Mono', monospace; font-size: 13px; color: var(--muted);
-    margin-top: 16px; word-break: break-all; line-height: 1.5;
+    margin-top: 16px;
+    word-break: break-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    writing-mode: horizontal-tb;
+    line-height: 1.6;
+    letter-spacing: 0;
   }
 
   .verified {
@@ -303,6 +313,7 @@
     color: var(--neon); font-size: 11px; font-weight: 700;
     letter-spacing: 1px; text-transform: uppercase;
     padding: 4px 12px; border-radius: 100px;
+    white-space: nowrap;
   }
 
   canvas { display: block; }
@@ -372,7 +383,6 @@
         </div>
       </div>
 
-      <!-- STATS — naprawione: każda kafelka pokazuje ilość + wartość USD -->
       <div class="balance-stats">
         <div class="bal-stat-item">
           <div class="bal-stat-val">76.000 BTC</div>
