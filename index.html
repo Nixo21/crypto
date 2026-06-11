@@ -377,16 +377,16 @@
           <div class="verified">✓ Zweryfikowane konto</div>
           <div class="balance-btc-box">
             <div class="balance-btc-label">₿ Bitcoin</div>
-            <div class="balance-btc-amount">76.00000000 BTC</div>
-            <div class="balance-btc-sub" id="btcSubVal">≈ $8,153,622 · 94.7% portfela</div>
+            <div class="balance-btc-amount">76.44213300 BTC</div>
+            <div class="balance-btc-sub" id="btcSubVal">≈ $8,200,989 · 94.7% portfela</div>
           </div>
         </div>
       </div>
 
       <div class="balance-stats">
         <div class="bal-stat-item">
-          <div class="bal-stat-val">76.000 BTC</div>
-          <div class="bal-stat-usd" id="statBtcUsd">≈ $8,153,622</div>
+          <div class="bal-stat-val">76.442133 BTC</div>
+          <div class="bal-stat-usd" id="statBtcUsd">≈ $8,200,989</div>
           <div class="bal-stat-lbl">Posiadane Bitcoin</div>
         </div>
         <div class="bal-stat-item">
@@ -400,8 +400,8 @@
           <div class="bal-stat-lbl">Śr. cena zakupu / BTC</div>
         </div>
         <div class="bal-stat-item">
-          <div class="bal-stat-val">$6,912,494</div>
-          <div class="bal-stat-usd" style="color:var(--muted)">76 BTC × $107,284</div>
+          <div class="bal-stat-val">$8,200,989</div>
+          <div class="bal-stat-usd" style="color:var(--muted)">76.442133 BTC × $107,284</div>
           <div class="bal-stat-lbl">Zainwestowany kapitał</div>
         </div>
       </div>
@@ -417,7 +417,7 @@
           <div class="mini-pct up" id="btcPct">▲ +3.47%</div>
         </div>
         <div class="mini-price" id="btcPrice">$107,284.50</div>
-        <div class="mini-held">Posiadasz: <strong style="color:var(--btc)">76.000 BTC</strong> · <span id="btcHeldUsd" style="color:var(--muted)">$8,153,622</span></div>
+        <div class="mini-held">Posiadasz: <strong style="color:var(--btc)">76.442133 BTC</strong> · <span id="btcHeldUsd" style="color:var(--muted)">$8,200,989</span></div>
         <canvas class="mini-sparkline" id="spark1" height="40"></canvas>
       </div>
       <div class="mini-card">
@@ -597,7 +597,7 @@ let btcLive = 107284.50;
 
 function tick() {
   btcLive += (Math.random() - 0.495) * 90;
-  const btcTotal = btcLive * 76;
+  const btcTotal = btcLive * 76.442133;
   const total = btcTotal + 4890 + 3749;
 
   document.getElementById('btcPrice').textContent = f(btcLive);
